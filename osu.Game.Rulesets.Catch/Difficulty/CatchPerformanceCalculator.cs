@@ -45,11 +45,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             // Longer maps are worth more. "Longer" means how many hits there are which can contribute to combo
             int numTotalHits = totalComboHits();
 
-            double lengthBonus =
-                0.95 + 0.3 * Math.Min(1.0, numTotalHits / 2500.0) +
-                (numTotalHits > 2500 ? Math.Log10(numTotalHits / 2500.0) * 0.475 : 0.0);
-            value *= lengthBonus;
-
             value *= DiffUtils.Pow(0.97, numMiss);
 
             // Combo scaling
@@ -86,6 +81,10 @@ namespace osu.Game.Rulesets.Catch.Difficulty
                     value *= 1.01 + 0.04 * (11.0 - Math.Min(11.0, approachRate)); // 5% at AR 10, 1% at AR 11
             }
 
+
+            double lengthBonus =
+                0.95 + 0.3 * Math.Min(1.0, numTotalHits / 2500.0) +
+                (numTotalHits > 2500 ? Math.Log10(numTotalHits / 2500.0) * 0.475 : 0.0);
             if (score.Mods.Any(m => m is ModFlashlight))
                 value *= 1.35 * lengthBonus;
 
