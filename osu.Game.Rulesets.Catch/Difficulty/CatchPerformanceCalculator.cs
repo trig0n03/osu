@@ -42,8 +42,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             // We are heavily relying on aim in catch the beat
             double value = DiffUtils.Pow(5.0 * Math.Max(1.0, catchAttributes.StarRating / 0.0049) - 4.0, 2.0) / 100000.0;
 
-            // Longer maps are worth more. "Longer" means how many hits there are which can contribute to combo
-            int numTotalHits = totalComboHits();
+            // Longer maps are worth more. "Longer" means how many notes there are which can contribute to combo
+            int totalCombo = totalComboHits();
 
             value *= DiffUtils.Pow(0.97, numMiss);
 
@@ -81,15 +81,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty
                     value *= 1.01 + 0.04 * (11.0 - Math.Min(11.0, approachRate)); // 5% at AR 10, 1% at AR 11
             }
 
-            // The shortest maps are believed to be valued too much
-            // lengthBonus decreases the value of maps with less than 600x combo at quadratic pace
-            // 600x combo is chosen as it is around the standard amount of combo for "TV size" maps at Overdose level
-            double lengthBonus = 1.0 + 0.3 * (1.0 - Math.Pow((Math.Min(numTotalHits, 600.0) / 600.0) - 1.0, 2.0));
-            value *= lengthBonus;
-
             double flashLightLengthBonus =
-                1.35 * (0.95 + 0.3 * Math.Min(1.0, numTotalHits / 2500.0) +
-                (numTotalHits > 2500 ? Math.Log10(numTotalHits / 2500.0) * 0.475 : 0.0));
+                1.35 * (0.95 + 0.3 * Math.Min(1.0, totalCombo / 2500.0) +
+                (totalCombo > 2500 ? Math.Log10(totalCombo / 2500.0) * 0.475 : 0.0));
             if (score.Mods.Any(m => m is ModFlashlight))
                 value *= flashLightLengthBonus;
 
@@ -98,7 +92,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             if (score.Mods.Any(m => m is ModNoFail))
                 value *= Math.Max(0.90, 1.0 - 0.02 * numMiss);
 
-            value *= 0.93;
+            value *= 1.2;
 
             return new CatchPerformanceAttributes
             {
