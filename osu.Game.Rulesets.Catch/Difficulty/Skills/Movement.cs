@@ -29,9 +29,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
 
         public override double DifficultyValue()
         {
-            // Sections with 0 strain are excluded to avoid worst-case time complexity of the following sort (e.g. /b/2351871).
-            // These sections will not contribute to the difficulty.
-            var peaks = GetCurrentStrainPeaks().Where(p => p > 0).ToList();
+            var peaks = GetCurrentStrainPeaks().ToList();
 
             if (ObjectDifficulties.Count == 0)
                 return 0;
