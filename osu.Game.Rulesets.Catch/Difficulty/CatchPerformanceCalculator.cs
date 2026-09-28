@@ -81,17 +81,24 @@ namespace osu.Game.Rulesets.Catch.Difficulty
                     value *= 1.01 + 0.04 * (11.0 - Math.Min(11.0, approachRate)); // 5% at AR 10, 1% at AR 11
             }
 
+            // The shortest maps are believed to be valued too much
+            // lengthBonus decreases the value of maps with less than 600x combo at quadratic pace
+            // 600x combo is chosen as it is around the standard amount of combo for "TV size" maps at Overdose level
+            double lengthBonus = 1.0 + 0.3 * (1.0 - Math.Pow((Math.Min(numTotalHits, 600.0) / 600.0) - 1.0, 2.0));
+            value *= lengthBonus;
 
-            double lengthBonus =
-                0.95 + 0.3 * Math.Min(1.0, numTotalHits / 2500.0) +
-                (numTotalHits > 2500 ? Math.Log10(numTotalHits / 2500.0) * 0.475 : 0.0);
+            double flashLightLengthBonus =
+                1.35 * (0.95 + 0.3 * Math.Min(1.0, numTotalHits / 2500.0) +
+                (numTotalHits > 2500 ? Math.Log10(numTotalHits / 2500.0) * 0.475 : 0.0));
             if (score.Mods.Any(m => m is ModFlashlight))
-                value *= 1.35 * lengthBonus;
+                value *= flashLightLengthBonus;
 
             value *= DiffUtils.Pow(accuracy(), 5.5);
 
             if (score.Mods.Any(m => m is ModNoFail))
                 value *= Math.Max(0.90, 1.0 - 0.02 * numMiss);
+
+            value *= 0.93;
 
             return new CatchPerformanceAttributes
             {
