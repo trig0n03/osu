@@ -8,7 +8,6 @@ using osu.Game.Rulesets.Difficulty.Preprocessing;
 using osu.Game.Rulesets.Difficulty.Skills;
 using osu.Game.Rulesets.Difficulty.Aggregation;
 using osu.Game.Rulesets.Mods;
-using osu.Game.Utils;
 
 namespace osu.Game.Rulesets.Catch.Difficulty.Skills
 {
@@ -17,9 +16,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
         protected override double SkillMultiplier => 1.6;
         protected override double StrainDecayBase => 0.05;
 
-        private double clockRate = 1.0;
-
-        protected override int SectionLength => (int)Math.Round(750 / clockRate);
+        protected override int SectionLength => 750;
 
         private int totalCombo;
 
@@ -27,7 +24,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
             : base(mods)
         {
             totalCombo = totalComboHits;
-            clockRate = ModUtils.CalculateRateWithMods(mods);
         }
 
         protected override double StrainValueOf(DifficultyHitObject current)
