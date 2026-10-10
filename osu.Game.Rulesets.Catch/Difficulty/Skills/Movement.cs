@@ -18,12 +18,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
 
         protected override int SectionLength => 750;
 
-        private int totalCombo;
-
-        public Movement(Mod[] mods, int totalComboHits)
+        public Movement(Mod[] mods)
             : base(mods)
         {
-            totalCombo = totalComboHits;
         }
 
         protected override double StrainValueOf(DifficultyHitObject current)
@@ -43,7 +40,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
             // The shortest maps are believed to be valued too much
             // lengthBonus decreases the value of maps with less than 600x combo at quadratic pace
             // 600x combo is chosen as it is around the standard amount of combo for "TV size" maps at Overdose level
-            double lengthBonus = 0.8 + 0.2 * (1.0 - Math.Pow((Math.Min(totalCombo, 600.0) / 600.0) - 1.0, 2.0));
+            double lengthBonus = 0.75 + 0.25 * (1.0 - Math.Pow((Math.Min(ObjectDifficulties.Count + 1, 600.0) / 600.0) - 1.0, 2.0));
             difficulty *= lengthBonus;
 
             return difficulty;

@@ -76,10 +76,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 
         protected override Skill[] CreateSkills(IBeatmap beatmap, Mod[] mods)
         {
-            int totalCombo = beatmap.HitObjects.Count;
             return new Skill[]
             {
-                new Movement(mods, totalCombo),
+                new Movement(mods),
             };
         }
 
