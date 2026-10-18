@@ -13,7 +13,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
     {
         private const double direction_change_bonus = 21.0;
 
-        public static double EvaluateDifficultyOf(DifficultyHitObject current)
+        public static double EvaluateDifficultyOf(DifficultyHitObject current, double circleSize)
         {
             var catchCurrent = (CatchDifficultyHitObject)current;
             var catchLast = (CatchDifficultyHitObject)current.Previous(0);
@@ -70,11 +70,11 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
 
             distanceAddition *= DiffUtils.Pow(0.7, linearSpacingCount);
 
-            // Bonus for edge dashes.
+            // Bonus for edge dashes
             if (catchCurrent.LastObject.DistanceToHyperDash <= 20.0f)
             {
                 if (!catchCurrent.LastObject.HyperDash)
-                    edgeDashBonus += 4.0;
+                    edgeDashBonus += 3.4 + circleSize / 10; // the precision (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash
 
                 distanceAddition *= 1.0 + edgeDashBonus * ((20 - catchCurrent.LastObject.DistanceToHyperDash) / 20);
             }
