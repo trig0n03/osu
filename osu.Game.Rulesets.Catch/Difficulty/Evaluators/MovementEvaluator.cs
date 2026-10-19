@@ -46,7 +46,31 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                                     / (CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 6) / sqrtStrain;
             }
 
-            // Linear spacing nerf.
+            // Repetitive spacing nerf.
+            double repetitiveSpacingCount = 0;
+
+            for (int i = 0; i < Math.Min(current.Index, 5); i++)
+            {
+                var catchPrevObj = (CatchDifficultyHitObject)catchCurrent.Previous(i);
+
+                if (catchCurrent.DistanceMoved == 0 || catchPrevObj.DistanceMoved == 0)
+                    break;
+
+                double currentSpacing = Math.Abs(catchCurrent.DistanceMoved / catchCurrent.StrainTime);
+                double prevSpacing = Math.Abs(catchPrevObj.DistanceMoved / catchPrevObj.StrainTime);
+
+                double relativeDifference = Math.Abs(currentSpacing / prevSpacing - 1);
+
+                if (relativeDifference <= 0.15)
+                    repetitiveSpacingCount += DiffUtils.Pow(Math.Max(0.0, 1.0 - relativeDifference / 0.15), 1.2);
+            }
+
+            double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.96, repetitiveSpacingCount) : DiffUtils.Pow(0.94, repetitiveSpacingCount);
+
+            distanceAddition *= repetitiveSpacingPenalty;
+
+            // Linear spacing nerf. It reduces the difficulty of streams (series of notes facing the same direction) with consecutive notes preserving the angle.
+            // Repetitive spacing nerf covers these streams, but we want to make this effect stronger in case of "linear streams".
             int linearSpacingCount = 0;
 
             for (int i = 0; i < Math.Min(current.Index, 10); i++)
@@ -68,41 +92,16 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                 linearSpacingCount++;
             }
 
-            distanceAddition *= DiffUtils.Pow(0.7, linearSpacingCount);
-
-            // Repetitive spacing nerf.
-            double repetitiveSpacingCount = 0;
-
-            for (int i = 0; i < Math.Min(current.Index, 10); i++)
-            {
-                var catchPrevObj = (CatchDifficultyHitObject)catchCurrent.Previous(i);
-
-                // Only opposite direction movements matter. Same direction movements are handled by linear spacing nerf.
-                if (Math.Sign(catchCurrent.DistanceMoved) == Math.Sign(catchPrevObj.DistanceMoved) || catchCurrent.DistanceMoved == 0 || catchPrevObj.DistanceMoved == 0)
-                    break;
-
-                double currentSpacing = Math.Abs(catchCurrent.DistanceMoved / catchCurrent.StrainTime);
-                double prevSpacing = Math.Abs(catchPrevObj.DistanceMoved / catchPrevObj.StrainTime);
-
-                double relativeDifference = Math.Abs(currentSpacing / prevSpacing - 1);
-
-                if (relativeDifference <= 0.15)
-                    repetitiveSpacingCount += DiffUtils.Pow(Math.Max(0.0, 1.0 - relativeDifference / 0.15), 1.2);
-            }
-
-            double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.93, repetitiveSpacingCount) : DiffUtils.Pow(0.9, repetitiveSpacingCount);
-
-            distanceAddition *= repetitiveSpacingPenalty;
+            distanceAddition *= DiffUtils.Pow(0.8, linearSpacingCount);
 
             // Bonus for edge dashes.
             if (catchCurrent.LastObject.DistanceToHyperDash <= 20.0f)
             {
                 if (!catchCurrent.LastObject.HyperDash)
                 {
-                    //edgeDashBonus += 2.8 + 0.25 * DiffUtils.Pow(Math.Max(0.0, circleSize - 2.0), 0.5); // Precision value (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash.
-                    edgeDashBonus += 2.9 + 0.1 * DiffUtils.Pow(circleSize, 0.8);
+                    edgeDashBonus += 3.0 + 0.1 * DiffUtils.Pow(circleSize, 0.8); // Precision value (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash.
                     if (current.Index >= 2 && catchLast.LastObject.HyperDash) // Edge dashes are harder when they appear right after a hyperdash.
-                        edgeDashBonus *= 1.3;
+                        edgeDashBonus *= 1.4;
                 }
 
                 distanceAddition *= 1.0 + edgeDashBonus * DiffUtils.Pow((20 - catchCurrent.LastObject.DistanceToHyperDash) / 20, 0.7);
