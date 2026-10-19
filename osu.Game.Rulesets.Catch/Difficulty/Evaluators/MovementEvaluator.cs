@@ -70,13 +70,42 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
 
             distanceAddition *= DiffUtils.Pow(0.7, linearSpacingCount);
 
-            // Bonus for edge dashes
+            // Repetitive spacing nerf.
+            double repetitiveSpacingCount = 0;
+
+            for (int i = 0; i < Math.Min(current.Index, 10); i++)
+            {
+                var catchPrevObj = (CatchDifficultyHitObject)catchCurrent.Previous(i);
+
+                // Only opposite direction movements matter. Same direction movements are handled by linear spacing nerf.
+                if (Math.Sign(catchCurrent.DistanceMoved) == Math.Sign(catchPrevObj.DistanceMoved) || catchCurrent.DistanceMoved == 0 || catchPrevObj.DistanceMoved == 0)
+                    break;
+
+                double currentSpacing = Math.Abs(catchCurrent.DistanceMoved / catchCurrent.StrainTime);
+                double prevSpacing = Math.Abs(catchPrevObj.DistanceMoved / catchPrevObj.StrainTime);
+
+                double relativeDifference = Math.Abs(currentSpacing / prevSpacing - 1);
+
+                if (relativeDifference <= 0.15)
+                    repetitiveSpacingCount += DiffUtils.Pow(Math.Max(0.0, 1.0 - relativeDifference / 0.15), 1.2);
+            }
+
+            double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.93, repetitiveSpacingCount) : DiffUtils.Pow(0.9, repetitiveSpacingCount);
+
+            distanceAddition *= repetitiveSpacingPenalty;
+
+            // Bonus for edge dashes.
             if (catchCurrent.LastObject.DistanceToHyperDash <= 20.0f)
             {
                 if (!catchCurrent.LastObject.HyperDash)
-                    edgeDashBonus += 3.4 + circleSize / 10; // the precision (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash
+                {
+                    //edgeDashBonus += 2.8 + 0.25 * DiffUtils.Pow(Math.Max(0.0, circleSize - 2.0), 0.5); // Precision value (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash.
+                    edgeDashBonus += 2.9 + 0.1 * DiffUtils.Pow(circleSize, 0.8);
+                    if (current.Index >= 2 && catchLast.LastObject.HyperDash) // Edge dashes are harder when they appear right after a hyperdash.
+                        edgeDashBonus *= 1.3;
+                }
 
-                distanceAddition *= 1.0 + edgeDashBonus * ((20 - catchCurrent.LastObject.DistanceToHyperDash) / 20);
+                distanceAddition *= 1.0 + edgeDashBonus * DiffUtils.Pow((20 - catchCurrent.LastObject.DistanceToHyperDash) / 20, 0.7);
             }
 
             // There is an edge case where horizontal back and forth sliders create "buzz" patterns which are repeated "movements" with a distance lower than
