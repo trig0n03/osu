@@ -46,7 +46,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                                     / (CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 6) / sqrtStrain;
             }
 
-            // Repetitive spacing nerf.
+            // Repetitive spacing nerf: it is harder to catch irregular distances, especially in case of non-hyperdashes which require one to "miss the rhythm on purpose".
             double repetitiveSpacingCount = 0;
 
             for (int i = 0; i < Math.Min(current.Index, 5); i++)
@@ -92,19 +92,20 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                 linearSpacingCount++;
             }
 
-            distanceAddition *= DiffUtils.Pow(0.8, linearSpacingCount);
+            distanceAddition *= DiffUtils.Pow(0.75, linearSpacingCount);
 
             // Bonus for edge dashes.
             if (catchCurrent.LastObject.DistanceToHyperDash <= 20.0f)
             {
                 if (!catchCurrent.LastObject.HyperDash)
                 {
-                    edgeDashBonus += 3.0 + 0.1 * DiffUtils.Pow(circleSize, 0.8); // Precision value (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash.
+                    // Precision value (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash.
+                    edgeDashBonus += 3.0 + 0.1 * DiffUtils.Pow(circleSize, 0.8);
                     if (current.Index >= 2 && catchLast.LastObject.HyperDash) // Edge dashes are harder when they appear right after a hyperdash.
                         edgeDashBonus *= 1.4;
                 }
 
-                distanceAddition *= 1.0 + edgeDashBonus * DiffUtils.Pow((20 - catchCurrent.LastObject.DistanceToHyperDash) / 20, 0.7);
+                distanceAddition *= 1.0 + edgeDashBonus * (30 - catchCurrent.LastObject.DistanceToHyperDash) / 30;
             }
 
             // There is an edge case where horizontal back and forth sliders create "buzz" patterns which are repeated "movements" with a distance lower than
