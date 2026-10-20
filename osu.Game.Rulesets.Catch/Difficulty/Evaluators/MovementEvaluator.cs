@@ -53,16 +53,16 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             {
                 var catchPrevObj = (CatchDifficultyHitObject)catchCurrent.Previous(i);
 
-                if (catchCurrent.DistanceMoved == 0 || catchPrevObj.DistanceMoved == 0)
-                    break;
+                if (catchPrevObj.DistanceMoved != 0)
+                {
+                    double currentSpacing = Math.Abs(catchCurrent.DistanceMoved / catchCurrent.StrainTime);
+                    double prevSpacing = Math.Abs(catchPrevObj.DistanceMoved / catchPrevObj.StrainTime);
 
-                double currentSpacing = Math.Abs(catchCurrent.DistanceMoved / catchCurrent.StrainTime);
-                double prevSpacing = Math.Abs(catchPrevObj.DistanceMoved / catchPrevObj.StrainTime);
+                    double relativeDifference = Math.Abs(currentSpacing / prevSpacing - 1);
 
-                double relativeDifference = Math.Abs(currentSpacing / prevSpacing - 1);
-
-                if (relativeDifference <= 0.15)
-                    repetitiveSpacingCount += DiffUtils.Pow(Math.Max(0.0, 1.0 - relativeDifference / 0.15), 1.2);
+                    if (relativeDifference <= 0.15)
+                        repetitiveSpacingCount += DiffUtils.Pow(Math.Max(0.0, 1.0 - relativeDifference / 0.15), 1.2);
+                }
             }
 
             double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.96, repetitiveSpacingCount) : DiffUtils.Pow(0.94, repetitiveSpacingCount);
