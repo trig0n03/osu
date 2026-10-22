@@ -92,7 +92,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                 linearSpacingCount++;
             }
 
-            distanceAddition *= DiffUtils.Pow(0.75, linearSpacingCount);
+            distanceAddition *= DiffUtils.Pow(0.7, linearSpacingCount);
 
             // Bonus for edge dashes.
             if (catchCurrent.LastObject.DistanceToHyperDash <= 20.0f)
