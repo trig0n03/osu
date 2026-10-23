@@ -62,12 +62,12 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
         /// <summary>
         /// The sign of the <see cref="DistanceMoved"/>: negative is left and positive is right.
         /// </summary>
-        public int Direction;
+        public int Direction { get; private set; }
 
         /// <summary>
         /// Subsequence of consecutive objects facing the same direction that the current <see cref="CatchDifficultyHitObject"/> is part of.
         /// </summary>
-        public readonly Flow Flow;
+        public Flow Flow { get; private set; }
 
         public CatchDifficultyHitObject(HitObject hitObject, HitObject lastObject, double clockRate, float halfCatcherWidth, List<DifficultyHitObject> objects, int index, List<Flow> flows)
             : base(hitObject, lastObject, clockRate, objects, index)
@@ -81,21 +81,21 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             // Every strain interval is hard capped at the equivalent of 375 BPM streaming speed as a safety measure
             StrainTime = Math.Max(40, DeltaTime);
 
+            setMovementState();
+
             // Divide all hit objects into flows, i.e. series of consecutive notes facing the same direction
             var prev = (CatchDifficultyHitObject)Previous(0);
-            
+
             if (prev != null && prev.Flow.Direction == Direction)
             {
                 prev.Flow.Add(this);
                 Flow = prev.Flow;
             }
-            else // New flow starts even if Direction is equal to 0.
+            else
             {
                 Flow = new Flow(new List<CatchDifficultyHitObject> { this }, flows, flows.Count);
                 flows.Add(Flow);
             }
-
-            setMovementState();
         }
 
         private void setMovementState()
