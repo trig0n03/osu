@@ -68,12 +68,12 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                         relativeDifference = Math.Max(0, relativeDifference - 0.05); // Handle inaccuracies in repetitive patterns.
 
                         if (relativeDifference <= 0.15)
-                            repetitiveSpacingWeight += DiffUtils.Pow(1.0 - relativeDifference / 0.15, 1.2) * DiffUtils.Pow(0.8, i);
+                            repetitiveSpacingWeight += (1.0 - relativeDifference / 0.15) * DiffUtils.Pow(0.8, i);
                     }
                 }
             }
 
-            double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.93, repetitiveSpacingWeight) : DiffUtils.Pow(0.9, repetitiveSpacingWeight);
+            double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.92, repetitiveSpacingWeight) : DiffUtils.Pow(0.9, repetitiveSpacingWeight);
 
             distanceAddition *= repetitiveSpacingPenalty;
 
