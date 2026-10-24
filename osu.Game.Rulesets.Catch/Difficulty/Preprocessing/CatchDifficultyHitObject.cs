@@ -62,12 +62,12 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
         /// <summary>
         /// The sign of the <see cref="DistanceMoved"/>: negative is left and positive is right.
         /// </summary>
-        public int Direction { get; private set; }
+        public int Direction;
 
         /// <summary>
-        /// Subsequence of consecutive objects facing the same direction that the current <see cref="CatchDifficultyHitObject"/> is part of.
+        /// Subsequence of consecutive objects facing the same direction that the current <see cref="CatchDifficultyHitObject"/> is a part of.
         /// </summary>
-        public Flow Flow { get; private set; }
+        public Flow Flow;
 
         public CatchDifficultyHitObject(HitObject hitObject, HitObject lastObject, double clockRate, float halfCatcherWidth, List<DifficultyHitObject> objects, int index, List<Flow> flows)
             : base(hitObject, lastObject, clockRate, objects, index)
