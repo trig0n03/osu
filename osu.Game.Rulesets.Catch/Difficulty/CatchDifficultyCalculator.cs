@@ -35,11 +35,13 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             if (beatmap.HitObjects.Count == 0)
                 return new CatchDifficultyAttributes { Mods = mods };
 
+            var movement = skills.OfType<Movement>().Single();
             CatchDifficultyAttributes attributes = new CatchDifficultyAttributes
             {
                 StarRating = Math.Sqrt(skills.OfType<Movement>().Single().DifficultyValue()) * difficulty_multiplier,
                 Mods = mods,
                 MaxCombo = beatmap.GetMaxCombo(),
+                ExcessSum = movement.ExcessSum,
             };
 
             return attributes;

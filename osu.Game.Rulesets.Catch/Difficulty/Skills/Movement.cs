@@ -9,6 +9,8 @@ using osu.Game.Rulesets.Difficulty.Skills;
 using osu.Game.Rulesets.Difficulty.Aggregation;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Catch.Beatmaps;
+using System.Runtime.InteropServices.Marshalling;
+using osu.Game.Rulesets.Catch.Difficulty.Preprocessing;
 
 namespace osu.Game.Rulesets.Catch.Difficulty.Skills
 {
@@ -21,6 +23,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
 
         private readonly double circleSize;
 
+        public float ExcessSum { get; private set; }
+
         public Movement(Mod[] mods, double circleSize)
             : base(mods)
         {
@@ -29,6 +33,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
 
         protected override double StrainValueOf(DifficultyHitObject current)
         {
+            var catchCurrent = (CatchDifficultyHitObject)current;
+            ExcessSum += Math.Max(0, Math.Abs(catchCurrent.ExactDistanceMoved - catchCurrent.CatcherWidth));
+
             return MovementEvaluator.EvaluateDifficultyOf(current, circleSize);
         }
 

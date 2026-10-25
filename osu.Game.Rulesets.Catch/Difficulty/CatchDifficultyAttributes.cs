@@ -9,6 +9,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 {
     public class CatchDifficultyAttributes : DifficultyAttributes
     {
+        public float ExcessSum { get; set; }
+
         public override IEnumerable<(int attributeId, object value)> ToDatabaseAttributes()
         {
             foreach (var v in base.ToDatabaseAttributes())
