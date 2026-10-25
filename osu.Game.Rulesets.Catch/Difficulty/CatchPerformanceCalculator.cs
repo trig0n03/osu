@@ -64,18 +64,24 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             double approachRateFactor = 1.0;
             if (approachRate >= 9.0)
                 approachRateFactor += Math.Pow((approachRate - 9.0) / 2.0, 2.5) * 0.38; // 38% for AR11
-            else if (approachRate < 8.0)
-                approachRateFactor += 0.025 * (8.0 - approachRate); // 20% for AR0
+            if (approachRate < 8.0 && approachRate >= 5.0)
+                approachRateFactor += 0.025 * (8.0 - approachRate); // 7.5% for AR5
+            if (approachRate < 5.0) // Pace of time->AR function is slower below AR5
+                approachRateFactor += 0.025 * (3.0 + 1.25 * (5.0 - approachRate)); // 23.125% for AR0
 
             value *= approachRateFactor;
 
+            // HD bonus: hidden gives almost nothing on max approach rate, and more the lower it is.
+            double hiddenFactor = 1.01;
             if (score.Mods.Any(m => m is ModHidden))
             {
-                // Hiddens gives almost nothing on max approach rate, and more the lower it is
-                if (approachRate <= 10.0)
-                    value *= 1.05 + 0.075 * (10.0 - approachRate); // 7.5% for each AR below 10
-                else if (approachRate > 10.0)
-                    value *= 1.01 + 0.04 * (11.0 - Math.Min(11.0, approachRate)); // 5% at AR 10, 1% at AR 11
+                if (approachRate < 11.0 && approachRate >= 8.0)
+                    hiddenFactor += 0.25 * Math.Pow(((11.0 - approachRate) / 3.0), 1.6); // 26% for AR8
+                if (approachRate < 8.0 && approachRate >= 5.0)
+                    hiddenFactor += 0.25 * (1.0 + 1.65 * (8.0 - approachRate) / 3.0); // tangent line to the function above at AR8
+                if (approachRate < 5.0) // Pace of time->AR function is slower below AR5
+                    hiddenFactor += 0.25 * (1.0 + 1.65 * (3.0 + 1.25 * (5.0 - approachRate)) / 3.0); // around 153% for AR0
+                value *= hiddenFactor;
             }
 
             // Longer maps are worth more when FlashLight is applied. "Longer" means how many notes there are which can contribute to combo
