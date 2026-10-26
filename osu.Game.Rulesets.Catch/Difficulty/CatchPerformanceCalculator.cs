@@ -70,7 +70,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
                 approachRateFactor += 0.025 * (3.0 + 1.25 * (5.0 - approachRate)); // 23.125% for AR0
             
             if (!score.Mods.Any(m => m is ModFlashlight))
-            value *= approachRateFactor;
+                value *= approachRateFactor;
 
             // HD bonus: hidden gives almost nothing on max approach rate, and more the lower it is.
             double hiddenFactor = 1.01;
@@ -84,17 +84,19 @@ namespace osu.Game.Rulesets.Catch.Difficulty
                     hiddenFactor += 0.25 * (1.0 + 1.65 * (3.0 + 1.25 * (5.0 - approachRate)) / 3.0); // around 153% for AR0
                 
                 if (!score.Mods.Any(m => m is ModFlashlight))
-                value *= hiddenFactor;
+                    value *= hiddenFactor;
             }
 
-            // FL (AR) bonus: the higher AR is, the harder flashlight is.
-            double flashlightApproachRateFactor = 1.0;
+            // Flashlight bonuses.
             if (score.Mods.Any(m => m is ModFlashlight))
             {
+                value *= 1.05; // Base Flashlight bonus: it is always harder to play with Flashlight than without it.
+
+                // Flashlight approach rate bonus: the higher approach rate is, the harder flashlight is.
+                double flashlightApproachRateFactor = 1.0;
+                
                 if (approachRate >= 0.0)
-                    flashlightApproachRateFactor = 1.0 + 0.01 * approachRate;
-                if (approachRate >= 8.0)
-                    flashlightApproachRateFactor += 0.02 * (approachRate - 8.0);
+                    flashlightApproachRateFactor += 0.6 * Math.Pow(approachRate / 11, 3); // 0% for AR0, 60% for AR11
                 flashlightApproachRateFactor *= 1.02;
 
                 // Make sure that FL doesn't give less pp than NM
@@ -102,13 +104,19 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 
                 if (!score.Mods.Any(m => m is ModHidden))
                     value *= flashlightApproachRateFactor;
-            }
+                else
+                {
+                    // HDFL bonus: when AR is low, the main difficulty is HD, so we take hiddenFactor.
+                    // When AR is high, the main difficulty is FL, so we take flashlightApproachRateFactor.
+                    value *= Math.Max(flashlightApproachRateFactor, approachRateFactor * hiddenFactor);
+                    value *= 1.05; // Base Hidden Flashlight bonus.
+                }
 
-            // HDFL bonus: when AR is low, the main difficulty is HD, so we take hiddenFactor.
-                // When AR is high, the main difficulty is FL, so we take approachRateFactor, which is the max of original approachRateFactor and flashlightApproachRateFactor.
-                // On top of that, we are adding an additional bonus common for all HDFL scores.
-            if (score.Mods.Any(m => m is ModFlashlight) && score.Mods.Any(m => m is ModHidden))
-                value *= Math.Max(flashlightApproachRateFactor, approachRateFactor * hiddenFactor) * 1.03;
+                // Flashlight length bonus: the wider the distance is, the harder Flashlight is, the higher the cumulative distance is, the more player has to memorise.
+                float excessSum = catchAttributes.ExcessSum;
+                value *= 1 + 2.0 * (DiffUtils.Pow(1 + excessSum / 100000, 0.2) - 1);
+
+            }
 
             // Longer maps are worth more when FlashLight is applied. "Longer" means how many notes there are which can contribute to combo
             // int totalCombo = totalComboHits();
@@ -117,10 +125,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             //     (totalCombo > 2500 ? Math.Log10(totalCombo / 2500.0) * 0.475 : 0.0));
             // if (score.Mods.Any(m => m is ModFlashlight))
             //     value *= flashLightLengthBonus;
-
-            float excessSum = catchAttributes.ExcessSum;
-            if (score.Mods.Any(m => m is ModFlashlight))
-                value *= 1 + DiffUtils.Pow(excessSum / 100000, 0.5);
 
             value *= DiffUtils.Pow(accuracy(), 5.5);
 
