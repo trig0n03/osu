@@ -56,9 +56,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
         public float ExactDistanceMoved { get; private set; }
 
         /// <summary>
-        /// Normalised width of the catcher
+        /// Normalised width of the catcher based on NORMALIZED_HALF_CATCHER_WIDTH
         /// </summary>
-        public float CatcherWidth { get; private set; }
+        public float NormalizedCatcherWidth { get; private set; }
 
         /// <summary>
         /// Milliseconds elapsed since the start time of the previous <see cref="CatchDifficultyHitObject"/>, with a minimum of 40ms.
@@ -76,8 +76,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
         /// </summary>
         public Flow Flow;
 
-        public double Excess;
-
         public CatchDifficultyHitObject(HitObject hitObject, HitObject lastObject, double clockRate, float halfCatcherWidth, List<DifficultyHitObject> objects, int index, List<Flow> flows)
             : base(hitObject, lastObject, clockRate, objects, index)
         {
@@ -90,7 +88,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             // Every strain interval is hard capped at the equivalent of 375 BPM streaming speed as a safety measure
             StrainTime = Math.Max(40, DeltaTime);
 
-            CatcherWidth = NORMALIZED_HALF_CATCHER_WIDTH / 2;
+            NormalizedCatcherWidth = NORMALIZED_HALF_CATCHER_WIDTH * 2;
 
             setMovementState();
 
@@ -107,8 +105,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
                 Flow = new Flow(new List<CatchDifficultyHitObject> { this }, flows, flows.Count);
                 flows.Add(Flow);
             }
-
-            Excess = Math.Max(0, Math.Abs(ExactDistanceMoved) - NORMALIZED_HALF_CATCHER_WIDTH); 
         }
 
         private void setMovementState()

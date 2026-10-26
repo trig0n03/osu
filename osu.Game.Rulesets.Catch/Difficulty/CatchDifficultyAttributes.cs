@@ -10,8 +10,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 {
     public class CatchDifficultyAttributes : DifficultyAttributes
     {
-        [JsonProperty("excess_sum")]
-        public float ExcessSum { get; set; }
+        [JsonProperty("cumulative_distance")]
+        public float CumulativeDistance { get; set; }
 
         public override IEnumerable<(int attributeId, object value)> ToDatabaseAttributes()
         {

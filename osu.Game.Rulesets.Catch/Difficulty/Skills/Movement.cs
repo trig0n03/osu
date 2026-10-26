@@ -23,7 +23,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
 
         private readonly double circleSize;
 
-        public float ExcessSum { get; private set; }
+        public float CumulativeDistance { get; private set; }
 
         public Movement(Mod[] mods, double circleSize)
             : base(mods)
@@ -34,7 +34,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
         protected override double StrainValueOf(DifficultyHitObject current)
         {
             var catchCurrent = (CatchDifficultyHitObject)current;
-            ExcessSum += Math.Max(0, Math.Abs(catchCurrent.ExactDistanceMoved - catchCurrent.CatcherWidth));
+            CumulativeDistance += Math.Abs(catchCurrent.ExactDistanceMoved);
 
             return MovementEvaluator.EvaluateDifficultyOf(current, circleSize);
         }

@@ -94,7 +94,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 
                 // Flashlight approach rate bonus: the higher approach rate is, the harder flashlight is.
                 double flashlightApproachRateFactor = 1.0;
-                
+
                 if (approachRate >= 0.0)
                     flashlightApproachRateFactor += 0.6 * Math.Pow(approachRate / 11, 3); // 0% for AR0, 60% for AR11
                 flashlightApproachRateFactor *= 1.02;
@@ -113,9 +113,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty
                 }
 
                 // Flashlight length bonus: the wider the distance is, the harder Flashlight is, the higher the cumulative distance is, the more player has to memorise.
-                float excessSum = catchAttributes.ExcessSum;
-                value *= 1 + 2.0 * (DiffUtils.Pow(1 + excessSum / 100000, 0.2) - 1);
-
+                float cumulativeDistance = catchAttributes.CumulativeDistance;
+                value *= 1 + 2.0 * (DiffUtils.Pow(1 + cumulativeDistance / 100000, 0.2) - 1);
             }
 
             // Longer maps are worth more when FlashLight is applied. "Longer" means how many notes there are which can contribute to combo
