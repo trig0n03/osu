@@ -4,11 +4,13 @@
 using System.Collections.Generic;
 using osu.Game.Beatmaps;
 using osu.Game.Rulesets.Difficulty;
+using Newtonsoft.Json;
 
 namespace osu.Game.Rulesets.Catch.Difficulty
 {
     public class CatchDifficultyAttributes : DifficultyAttributes
     {
+        [JsonProperty("excess_sum")]
         public float ExcessSum { get; set; }
 
         public override IEnumerable<(int attributeId, object value)> ToDatabaseAttributes()
