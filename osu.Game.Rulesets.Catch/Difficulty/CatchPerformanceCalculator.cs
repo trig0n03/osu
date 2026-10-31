@@ -65,9 +65,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             if (approachRate >= 9)
                 approachRateFactor += Math.Pow((approachRate - 9) / 2, 2.5) * 0.38; // 38% for AR11
             if (approachRate < 8 && approachRate >= 5)
-                approachRateFactor += 0.025 * (8 - approachRate); // 7.5% for AR5
+                approachRateFactor += 0.025 * (7 - approachRate); // 5% for AR5
             if (approachRate < 5) // Pace of time->AR function is slower below AR5
-                approachRateFactor += 0.025 * (3 + 1.25 * (5 - approachRate)); // 23.125% for AR0
+                approachRateFactor += 0.025 * (2 + 1.25 * (5 - approachRate)); // 20.875% for AR0
             
             if (!score.Mods.Any(m => m is ModFlashlight))
                 value *= approachRateFactor;
