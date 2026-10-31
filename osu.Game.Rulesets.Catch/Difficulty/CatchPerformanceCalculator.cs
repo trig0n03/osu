@@ -63,7 +63,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 
             double approachRateFactor = 1;
             if (approachRate >= 9)
-                approachRateFactor += Math.Pow((approachRate - 9) / 2, 2) * 0.25; // 38% for AR11
+                approachRateFactor += Math.Pow((approachRate - 9) / 2, 2) * 0.25; // 25% for AR11
             if (approachRate < 8 && approachRate >= 5)
                 approachRateFactor += 0.025 * (7 - approachRate); // 5% for AR5
             if (approachRate < 5) // Pace of time->AR function is slower below AR5
