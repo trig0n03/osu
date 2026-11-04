@@ -113,7 +113,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                     edgeDashBonus += 3.0 + 0.1 * DiffUtils.Pow(circleSize, 0.8);
                     if (current.Index >= 2 && catchLast.LastObject.HyperDash) // Edge dashes are harder when they appear right after a hyperdash.
                         edgeDashBonus *= 1.4;
-                    if (catchCurrent.Direction == catchLast.Direction)
+                    if (catchLast != null && catchCurrent.Direction == catchLast.Direction)
                         edgeDashBonus *= 0.75;
                 }
 
