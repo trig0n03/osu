@@ -55,6 +55,11 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
         public float ExactDistanceMoved { get; private set; }
 
         /// <summary>
+        /// Normalised width of the catcher based on NORMALIZED_HALF_CATCHER_WIDTH
+        /// </summary>
+        public float NormalizedCatcherWidth { get; private set; }
+
+        /// <summary>
         /// Milliseconds elapsed since the start time of the previous <see cref="CatchDifficultyHitObject"/>, with a minimum of 40ms.
         /// </summary>
         public readonly double StrainTime;
@@ -82,16 +87,19 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             // Every strain interval is hard capped at the equivalent of 375 BPM streaming speed as a safety measure
             StrainTime = Math.Max(40, DeltaTime);
 
+            NormalizedCatcherWidth = NORMALIZED_HALF_CATCHER_WIDTH * 2;
+
             setMovementState();
 
             // Divide all hit objects into flows, i.e. series of consecutive notes facing the same direction
             var prev = (CatchDifficultyHitObject)Previous(0);
+
             if (prev != null && prev.Flow.Direction == Direction)
             {
                 prev.Flow.Add(this);
                 Flow = prev.Flow;
             }
-            else // Previous object is a direction change (or null).
+            else // Previous object is a direction change (or null)
             {
                 Flow = new Flow(new List<CatchDifficultyHitObject> { this }, flows, flows.Count);
                 flows.Add(Flow);

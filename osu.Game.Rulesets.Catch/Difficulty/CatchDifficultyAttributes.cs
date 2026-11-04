@@ -4,11 +4,15 @@
 using System.Collections.Generic;
 using osu.Game.Beatmaps;
 using osu.Game.Rulesets.Difficulty;
+using Newtonsoft.Json;
 
 namespace osu.Game.Rulesets.Catch.Difficulty
 {
     public class CatchDifficultyAttributes : DifficultyAttributes
     {
+        [JsonProperty("cumulative_distance")]
+        public float CumulativeDistance { get; set; }
+
         public override IEnumerable<(int attributeId, object value)> ToDatabaseAttributes()
         {
             foreach (var v in base.ToDatabaseAttributes())

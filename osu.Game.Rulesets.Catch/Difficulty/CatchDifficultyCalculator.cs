@@ -21,7 +21,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 {
     public class CatchDifficultyCalculator : DifficultyCalculator
     {
-        private const double difficulty_multiplier = 5.98;
+        private const double difficulty_multiplier = 6;
 
         public override int Version => 20260706;
 
@@ -35,11 +35,13 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             if (beatmap.HitObjects.Count == 0)
                 return new CatchDifficultyAttributes { Mods = mods };
 
+            var movement = skills.OfType<Movement>().Single();
             CatchDifficultyAttributes attributes = new CatchDifficultyAttributes
             {
                 StarRating = Math.Sqrt(skills.OfType<Movement>().Single().DifficultyValue()) * difficulty_multiplier,
                 Mods = mods,
                 MaxCombo = beatmap.GetMaxCombo(),
+                CumulativeDistance = movement.CumulativeDistance,
             };
 
             return attributes;

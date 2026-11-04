@@ -87,14 +87,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
                     value *= hiddenFactor;
             }
 
-            // Longer maps are worth more when FlashLight is applied. "Longer" means how many notes there are which can contribute to combo
-            int totalCombo = totalComboHits();
-            double flashLightLengthBonus =
-                1.35 * (0.95 + 0.3 * Math.Min(1.0, totalCombo / 2500.0) +
-                        (totalCombo > 2500 ? Math.Log10(totalCombo / 2500.0) * 0.475 : 0.0));
-            if (score.Mods.Any(m => m is ModFlashlight))
-                value *= flashLightLengthBonus;
-
+            // Flashlight bonuses.
             if (score.Mods.Any(m => m is ModFlashlight))
             {
                 value *= 1.07; // Base Flashlight bonus: it is always harder to play with Flashlight than without it.
@@ -117,6 +110,10 @@ namespace osu.Game.Rulesets.Catch.Difficulty
                 }
                 else
                     value *= flashlightApproachRateFactor;
+
+                // Flashlight length bonus: the higher the cumulative distance is, the more player has to memorise.
+                float cumulativeDistance = catchAttributes.CumulativeDistance;
+                value *= 1 + 2 * (DiffUtils.Pow(1 + cumulativeDistance / 100000, 0.2) - 1);
             }
 
             value *= DiffUtils.Pow(accuracy(), 5.5);
