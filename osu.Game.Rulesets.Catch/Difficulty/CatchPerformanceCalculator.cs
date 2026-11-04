@@ -16,7 +16,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 {
     public class CatchPerformanceCalculator : PerformanceCalculator
     {
-        private const double performance_multiplier = 1.01;
+        private const double performance_multiplier = 1.24;
 
         private int num300;
         private int num100;
@@ -42,13 +42,13 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             double scoreMaxCombo = Math.Clamp(score.MaxCombo, 0, catchAttributes.MaxCombo);
 
             // We are heavily relying on aim in catch the beat
-            double value = DiffUtils.Pow(5.0 * Math.Max(1.0, catchAttributes.StarRating / 0.0049) - 4.0, 2.1) / 210000.0;
+            double value = DiffUtils.Pow(5 * Math.Max(1, catchAttributes.StarRating / 0.0049) - 4, 2) / 100000;
 
             value *= DiffUtils.Pow(0.97, numMiss);
 
             // Combo scaling
             if (catchAttributes.MaxCombo > 0)
-                value *= Math.Min(DiffUtils.Pow(scoreMaxCombo, 0.35) / DiffUtils.Pow(catchAttributes.MaxCombo, 0.35), 1.0);
+                value *= Math.Min(DiffUtils.Pow(scoreMaxCombo, 0.35) / DiffUtils.Pow(catchAttributes.MaxCombo, 0.35), 1);
 
             var difficulty = score.BeatmapInfo!.Difficulty.Clone();
 
@@ -59,25 +59,32 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             // this is the same as osu!, so there's potential to share the implementation... maybe
             double preempt = IBeatmapDifficultyInfo.DifficultyRange(difficulty.ApproachRate, 1800, 1200, 450) / clockRate;
 
-            double approachRate = preempt > 1200.0 ? -(preempt - 1800.0) / 120.0 : -(preempt - 1200.0) / 150.0 + 5.0;
+            double approachRate = preempt > 1200 ? -(preempt - 1800) / 120 : -(preempt - 1200) / 150 + 5;
 
-            double approachRateFactor = 1.0;
-            if (approachRate > 9.0)
-                approachRateFactor += 0.1 * (approachRate - 9.0); // 10% for each AR above 9
-            if (approachRate > 10.0)
-                approachRateFactor += 0.1 * (approachRate - 10.0); // Additional 10% at AR 11, 30% total
-            else if (approachRate < 8.0)
-                approachRateFactor += 0.025 * (8.0 - approachRate); // 2.5% for each AR below 8
+            double approachRateFactor = 1;
+            if (approachRate >= 9)
+                approachRateFactor += Math.Pow((approachRate - 9) / 2, 2) * 0.25; // 25% for AR11
+            if (approachRate < 8 && approachRate >= 5)
+                approachRateFactor += 0.025 * (7 - approachRate); // 5% for AR5
+            if (approachRate < 5) // Pace of time->AR function is slower below AR5
+                approachRateFactor += 0.025 * (2 + 1.25 * (5 - approachRate)); // 20.875% for AR0
+            
+            if (!score.Mods.Any(m => m is ModFlashlight))
+                value *= approachRateFactor;
 
-            value *= approachRateFactor;
-
+            // HD bonus: hidden gives almost nothing on max approach rate, and more the lower it is.
+            double hiddenFactor = 1.01;
             if (score.Mods.Any(m => m is ModHidden))
             {
-                // Hiddens gives almost nothing on max approach rate, and more the lower it is
-                if (approachRate <= 10.0)
-                    value *= 1.05 + 0.075 * (10.0 - approachRate); // 7.5% for each AR below 10
-                else if (approachRate > 10.0)
-                    value *= 1.01 + 0.04 * (11.0 - Math.Min(11.0, approachRate)); // 5% at AR 10, 1% at AR 11
+                if (approachRate < 11 && approachRate >= 8)
+                    hiddenFactor += 0.25 * Math.Pow(((11 - approachRate) / 3), 1.6); // 26% for AR8
+                if (approachRate < 8 && approachRate >= 5)
+                    hiddenFactor += 0.25 * (1.0 + 1.65 * (8 - approachRate) / 3); // tangent line to the function above at AR8
+                if (approachRate < 5) // Pace of time->AR function is slower below AR5
+                    hiddenFactor += 0.25 * (1 + 1.65 * (3 + 1.25 * (5 - approachRate)) / 3); // around 153% for AR0
+                
+                if (!score.Mods.Any(m => m is ModFlashlight))
+                    value *= hiddenFactor;
             }
 
             // Longer maps are worth more when FlashLight is applied. "Longer" means how many notes there are which can contribute to combo
@@ -91,7 +98,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             value *= DiffUtils.Pow(accuracy(), 5.5);
 
             if (score.Mods.Any(m => m is ModNoFail))
-                value *= Math.Max(0.90, 1.0 - 0.02 * numMiss);
+                value *= Math.Max(0.9, 1 - 0.02 * numMiss);
 
             value *= performance_multiplier;
 
