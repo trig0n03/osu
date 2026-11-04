@@ -86,13 +86,12 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
 
             // Divide all hit objects into flows, i.e. series of consecutive notes facing the same direction
             var prev = (CatchDifficultyHitObject)Previous(0);
-
             if (prev != null && prev.Flow.Direction == Direction)
             {
                 prev.Flow.Add(this);
                 Flow = prev.Flow;
             }
-            else // Previous object is a direction change (or null)
+            else // Previous object is a direction change (or null).
             {
                 Flow = new Flow(new List<CatchDifficultyHitObject> { this }, flows, flows.Count);
                 flows.Add(Flow);

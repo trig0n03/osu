@@ -8,7 +8,7 @@ using osu.Game.Rulesets.Difficulty.Preprocessing;
 using osu.Game.Rulesets.Difficulty.Skills;
 using osu.Game.Rulesets.Difficulty.Aggregation;
 using osu.Game.Rulesets.Mods;
-using osu.Game.Rulesets.Catch.Beatmaps;
+using osu.Game.Rulesets.Difficulty.Utils;
 
 namespace osu.Game.Rulesets.Catch.Difficulty.Skills
 {
@@ -40,14 +40,14 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Skills
                 return 0;
 
             // Difficulty reduction based on time: the earlier strain is, the easier it is to catch
-            const double reduced_difficulty_sections = 40.0; // a total of 40 sections (equivalently: first 45 seconds) are affected
+            const double reduced_difficulty_sections = 40.0; // a total of 40 sections (equivalently: first 30 seconds) are affected
             const double reduced_difficulty_base_line = 0.5;
             const double reduced_difficulty_power = 0.5;
 
             for (int sectionCount = 0; sectionCount < Math.Min(reduced_difficulty_sections, peaks.Count); sectionCount++)
             {
-                double scale = Math.Pow(Math.Min(1.0, sectionCount / reduced_difficulty_sections), reduced_difficulty_power);
-                peaks[sectionCount] *= reduced_difficulty_base_line + (1.0 - reduced_difficulty_base_line) * scale;
+                double scale = DiffUtils.Pow(Math.Min(1.0, sectionCount / reduced_difficulty_sections), reduced_difficulty_power);
+                peaks[sectionCount] *= double.Lerp(reduced_difficulty_base_line, 1.0, scale);
             }
 
             (double difficulty, _) = HarmonicSeries.Aggregate(peaks, harmonicScale: 15, decayExponent: 0.7);

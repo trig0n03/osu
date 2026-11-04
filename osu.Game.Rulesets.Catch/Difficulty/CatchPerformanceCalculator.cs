@@ -16,7 +16,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
 {
     public class CatchPerformanceCalculator : PerformanceCalculator
     {
-        private const double performance_multiplier = 1.23;
+        private const double performance_multiplier = 1.01;
 
         private int num300;
         private int num100;
@@ -42,7 +42,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             double scoreMaxCombo = Math.Clamp(score.MaxCombo, 0, catchAttributes.MaxCombo);
 
             // We are heavily relying on aim in catch the beat
-            double value = DiffUtils.Pow(5.0 * Math.Max(1.0, catchAttributes.StarRating / 0.0049) - 4.0, 2.0) / 100000.0;
+            double value = DiffUtils.Pow(5.0 * Math.Max(1.0, catchAttributes.StarRating / 0.0049) - 4.0, 2.1) / 210000.0;
 
             value *= DiffUtils.Pow(0.97, numMiss);
 
@@ -62,10 +62,12 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             double approachRate = preempt > 1200.0 ? -(preempt - 1800.0) / 120.0 : -(preempt - 1200.0) / 150.0 + 5.0;
 
             double approachRateFactor = 1.0;
-            if (approachRate >= 9.0)
-                approachRateFactor += Math.Pow((approachRate - 9.0) / 2.0, 2.5) * 0.38; // 38% for AR11
+            if (approachRate > 9.0)
+                approachRateFactor += 0.1 * (approachRate - 9.0); // 10% for each AR above 9
+            if (approachRate > 10.0)
+                approachRateFactor += 0.1 * (approachRate - 10.0); // Additional 10% at AR 11, 30% total
             else if (approachRate < 8.0)
-                approachRateFactor += 0.025 * (8.0 - approachRate); // 20% for AR0
+                approachRateFactor += 0.025 * (8.0 - approachRate); // 2.5% for each AR below 8
 
             value *= approachRateFactor;
 
@@ -82,7 +84,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             int totalCombo = totalComboHits();
             double flashLightLengthBonus =
                 1.35 * (0.95 + 0.3 * Math.Min(1.0, totalCombo / 2500.0) +
-                (totalCombo > 2500 ? Math.Log10(totalCombo / 2500.0) * 0.475 : 0.0));
+                        (totalCombo > 2500 ? Math.Log10(totalCombo / 2500.0) * 0.475 : 0.0));
             if (score.Mods.Any(m => m is ModFlashlight))
                 value *= flashLightLengthBonus;
 
