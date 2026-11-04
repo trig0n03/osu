@@ -95,6 +95,30 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             if (score.Mods.Any(m => m is ModFlashlight))
                 value *= flashLightLengthBonus;
 
+            if (score.Mods.Any(m => m is ModFlashlight))
+            {
+                value *= 1.07; // Base Flashlight bonus: it is always harder to play with Flashlight than without it.
+
+                // Flashlight approach rate bonus: the higher approach rate is, the harder flashlight is.
+                double flashlightApproachRateFactor = 1;
+
+                if (approachRate >= 0)
+                    flashlightApproachRateFactor += 0.6 * Math.Pow(approachRate / 11, 3); // 0% for AR0, 60% for AR11
+
+                // Make sure that FL doesn't give less pp than NM
+                flashlightApproachRateFactor = Math.Max(approachRateFactor, flashlightApproachRateFactor);
+
+                if (score.Mods.Any(m => m is ModHidden))
+                {
+                    // HDFL bonus: when AR is low, the main difficulty is HD, so we take hiddenFactor.
+                    // When AR is high, the main difficulty is FL, so we take flashlightApproachRateFactor.
+                    value *= Math.Max(flashlightApproachRateFactor, approachRateFactor * hiddenFactor);
+                    value *= 1.05; // Base Hidden Flashlight bonus.
+                }
+                else
+                    value *= flashlightApproachRateFactor;
+            }
+
             value *= DiffUtils.Pow(accuracy(), 5.5);
 
             if (score.Mods.Any(m => m is ModNoFail))
