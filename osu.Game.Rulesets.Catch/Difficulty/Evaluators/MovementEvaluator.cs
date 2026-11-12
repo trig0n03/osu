@@ -67,10 +67,10 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
 
                         if (prevFlow != null && prevFlow.Distance != 0)
                         {
-                            double lastSpacing = Math.Abs(currentFlow.Distance / currentFlow.StrainTime);
+                            double currentSpacing = Math.Abs(currentFlow.Distance / currentFlow.StrainTime);
                             double prevSpacing = Math.Abs(prevFlow.Distance / prevFlow.StrainTime);
 
-                            double relativeDifference = Math.Abs(lastSpacing / prevSpacing - 1);
+                            double relativeDifference = Math.Abs(currentSpacing / prevSpacing - 1);
                             relativeDifference = Math.Max(0, relativeDifference - 0.05); // Handle inaccuracies in repetitive patterns.
 
                             if (relativeDifference <= 0.15)
@@ -95,10 +95,10 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                 if (catchNext.Direction != catchPrevObj.Direction || catchNext.Distance == 0 || catchPrevObj.Distance == 0)
                     break;
 
-                double currentSpacing = Math.Abs(catchNext.Distance / catchNext.StrainTime);
+                double nextSpacing = Math.Abs(catchNext.Distance / catchNext.StrainTime);
                 double prevSpacing = Math.Abs(catchPrevObj.Distance / catchPrevObj.StrainTime);
 
-                double relativeDifference = Math.Abs(currentSpacing / prevSpacing - 1);
+                double relativeDifference = Math.Abs(nextSpacing / prevSpacing - 1);
 
                 if (relativeDifference > 0.05)
                     break;
