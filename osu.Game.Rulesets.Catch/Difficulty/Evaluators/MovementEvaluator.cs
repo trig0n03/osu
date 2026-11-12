@@ -18,6 +18,10 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             var catchCurrent = (CatchDifficultyHitObject)current;
             var catchLast = (CatchDifficultyHitObject)current.Previous(0);
             var catchLastLast = (CatchDifficultyHitObject)current.Previous(1);
+            var catchNext = (CatchDifficultyHitObject)current.Next(0);
+
+            if (catchLast == null || catchNext == null)
+                return 0;
 
             // In catch, clockrate adjustments do not only affect the timings of hitobjects,
             // but also the speed of the player's catcher, which has an impact on difficulty
@@ -75,7 +79,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                         }
                     }
                 }
-                
+
                 double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.97, repetitiveSpacingWeight) : DiffUtils.Pow(0.93, repetitiveSpacingWeight);
                 distanceAddition *= repetitiveSpacingPenalty;
             }
