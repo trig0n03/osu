@@ -15,9 +15,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
 
         public static double EvaluateDifficultyOf(DifficultyHitObject current, double circleSize)
         {
-            var catchCurrent = (CatchDifficultyHitObject)current;
             var catchLast = (CatchDifficultyHitObject)current.Previous(0);
-            var catchLastLast = (CatchDifficultyHitObject)current.Previous(1);
+            var catchCurrent = (CatchDifficultyHitObject)current;
             var catchNext = (CatchDifficultyHitObject)current.Next(0);
 
             if (catchLast == null || catchNext == null)
@@ -27,48 +26,48 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             // but also the speed of the player's catcher, which has an impact on difficulty
             double clockRate = current.ClockRate;
 
-            double weightedStrainTime = catchCurrent.StrainTime + 16 / clockRate;
+            double weightedStrainTime = catchNext.StrainTime + 16 / clockRate;
 
-            double distanceAddition = (DiffUtils.Pow(Math.Abs(catchCurrent.DistanceMoved), 1.3) / 510);
+            double distanceAddition = (DiffUtils.Pow(Math.Abs(catchNext.DistanceMoved), 1.3) / 510);
             double sqrtStrain = Math.Sqrt(weightedStrainTime);
 
             double edgeDashBonus = 0;
 
             // Direction change bonus.
-            if (Math.Abs(catchCurrent.DistanceMoved) > 0.1)
+            if (Math.Abs(catchNext.DistanceMoved) > 0.1)
             {
-                if (current.Index >= 1 && Math.Abs(catchLast.DistanceMoved) > 0.1 && catchCurrent.Direction != catchLast.Direction)
+                if (catchNext.Index >= 1 && Math.Abs(catchCurrent.DistanceMoved) > 0.1 && catchNext.Direction != catchCurrent.Direction)
                 {
-                    double bonusFactor = Math.Min(50, Math.Abs(catchCurrent.DistanceMoved)) / 50;
-                    double antiflowFactor = Math.Max(Math.Min(70, Math.Abs(catchLast.DistanceMoved)) / 70, 0.38);
+                    double bonusFactor = Math.Min(50, Math.Abs(catchNext.DistanceMoved)) / 50;
+                    double antiflowFactor = Math.Max(Math.Min(70, Math.Abs(catchCurrent.DistanceMoved)) / 70, 0.38);
 
-                    distanceAddition += direction_change_bonus / Math.Sqrt(catchLast.StrainTime + 16 / clockRate) * bonusFactor * antiflowFactor * Math.Max(1 - DiffUtils.Pow(weightedStrainTime / 1000, 3), 0);
+                    distanceAddition += direction_change_bonus / Math.Sqrt(catchCurrent.StrainTime + 16 / clockRate) * bonusFactor * antiflowFactor * Math.Max(1 - DiffUtils.Pow(weightedStrainTime / 1000, 3), 0);
                 }
 
                 // Base bonus for every movement, giving some weight to streams.
-                distanceAddition += 12.5 * Math.Min(Math.Abs(catchCurrent.DistanceMoved), CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 2)
+                distanceAddition += 12.5 * Math.Min(Math.Abs(catchNext.DistanceMoved), CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 2)
                                     / (CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 6) / sqrtStrain;
             }
 
             // Repetitive spacing nerf: it is harder to catch irregular distances, especially in case of non-hyperdashes which require one to "miss the rhythm on purpose".
             // Penalty is given based on the ratio between the current (incoming) normalised spacing and the previous normalised spacing.
-            if (current.Index >= 1)
+            if (catchNext.Index >= 1)
             {
                 double repetitiveSpacingWeight = 0;
 
+                var nextFlow = catchNext.Flow;
                 var currentFlow = catchCurrent.Flow;
-                var lastFlow = catchLast.Flow;
 
                 // Penalty is applied only to the direction changes.
-                if (currentFlow.IsFirst(catchCurrent))
+                if (nextFlow.IsFirst(catchNext))
                 {
-                    for (int i = 0; i < Math.Min(lastFlow.Index, 8); i++)
+                    for (int i = 0; i < Math.Min(currentFlow.Index, 8); i++)
                     {
-                        var prevFlow = lastFlow.Previous(i);
+                        var prevFlow = currentFlow.Previous(i);
 
                         if (prevFlow != null && prevFlow.Distance != 0)
                         {
-                            double lastSpacing = Math.Abs(lastFlow.Distance / lastFlow.StrainTime);
+                            double lastSpacing = Math.Abs(currentFlow.Distance / currentFlow.StrainTime);
                             double prevSpacing = Math.Abs(prevFlow.Distance / prevFlow.StrainTime);
 
                             double relativeDifference = Math.Abs(lastSpacing / prevSpacing - 1);
@@ -80,7 +79,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                     }
                 }
 
-                double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.97, repetitiveSpacingWeight) : DiffUtils.Pow(0.93, repetitiveSpacingWeight);
+                double repetitiveSpacingPenalty = catchNext.BaseObject.HyperDash ? DiffUtils.Pow(0.97, repetitiveSpacingWeight) : DiffUtils.Pow(0.93, repetitiveSpacingWeight);
                 distanceAddition *= repetitiveSpacingPenalty;
             }
 
@@ -88,15 +87,15 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             // It reduces the difficulty of streams (series of notes facing the same direction) with consecutive notes preserving the angle.
             int linearSpacingCount = 0;
 
-            for (int i = 0; i < Math.Min(current.Index, 10); i++)
+            for (int i = 0; i < Math.Min(catchNext.Index, 10); i++)
             {
-                var catchPrevObj = (CatchDifficultyHitObject)catchCurrent.Previous(i);
+                var catchPrevObj = (CatchDifficultyHitObject)catchNext.Previous(i);
 
                 // Only same direction movements matter as they do not take any additional inputs.
-                if (catchCurrent.Direction != catchPrevObj.Direction || catchCurrent.Distance == 0 || catchPrevObj.Distance == 0)
+                if (catchNext.Direction != catchPrevObj.Direction || catchNext.Distance == 0 || catchPrevObj.Distance == 0)
                     break;
 
-                double currentSpacing = Math.Abs(catchCurrent.Distance / catchCurrent.StrainTime);
+                double currentSpacing = Math.Abs(catchNext.Distance / catchNext.StrainTime);
                 double prevSpacing = Math.Abs(catchPrevObj.Distance / catchPrevObj.StrainTime);
 
                 double relativeDifference = Math.Abs(currentSpacing / prevSpacing - 1);
@@ -110,30 +109,30 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             distanceAddition *= DiffUtils.Pow(0.6, linearSpacingCount);
 
             // Bonus for edge dashes.
-            if (catchCurrent.LastObject.DistanceToHyperDash <= 30.0f)
+            if (catchNext.LastObject.DistanceToHyperDash <= 30.0f)
             {
-                if (!catchCurrent.LastObject.HyperDash)
+                if (!catchNext.LastObject.HyperDash)
                 {
                     // Precision value (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash.
                     edgeDashBonus += 3.0 + 0.1 * DiffUtils.Pow(circleSize, 0.8);
-                    if (current.Index >= 2 && catchLast.LastObject.HyperDash) // Edge dashes are harder when they appear right after a hyperdash.
+                    if (catchNext.Index >= 2 && catchCurrent.LastObject.HyperDash) // Edge dashes are harder when they appear right after a hyperdash.
                         edgeDashBonus *= 1.4;
-                    if (catchLast != null && catchCurrent.Direction == catchLast.Direction)
+                    if (catchCurrent != null && catchNext.Direction == catchCurrent.Direction)
                         edgeDashBonus *= 0.75;
                 }
 
-                distanceAddition *= 1.0 + edgeDashBonus * (30 - catchCurrent.LastObject.DistanceToHyperDash) / 30;
+                distanceAddition *= 1.0 + edgeDashBonus * (30 - catchNext.LastObject.DistanceToHyperDash) / 30;
             }
 
             // There is an edge case where horizontal back and forth sliders create "buzz" patterns which are repeated "movements" with a distance lower than
             // the platter's width but high enough to be considered a movement due to the absolute_player_positioning_error and NORMALIZED_HALF_CATCHER_WIDTH offsets
             // We are detecting this exact scenario. The first back and forth is counted but all subsequent ones are nullified.
             // To achieve that, we need to store the exact distances between consecutive objects.
-            if (current.Index >= 2 && Math.Abs(catchCurrent.Distance) <= CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 2
+            if (catchNext.Index >= 2 && Math.Abs(catchNext.Distance) <= CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 2
+                                   && Precision.AlmostEquals(catchNext.Distance, -catchCurrent.Distance)
                                    && Precision.AlmostEquals(catchCurrent.Distance, -catchLast.Distance)
-                                   && Precision.AlmostEquals(catchLast.Distance, -catchLastLast.Distance)
-                                   && Precision.AlmostEquals(catchCurrent.StrainTime, catchLast.StrainTime)
-                                   && Precision.AlmostEquals(catchLast.StrainTime, catchLastLast.StrainTime))
+                                   && Precision.AlmostEquals(catchNext.StrainTime, catchCurrent.StrainTime)
+                                   && Precision.AlmostEquals(catchCurrent.StrainTime, catchLast.StrainTime))
                 distanceAddition = 0;
 
             return distanceAddition / weightedStrainTime;
