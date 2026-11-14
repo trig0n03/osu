@@ -62,9 +62,14 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
         public readonly double StrainTime;
 
         /// <summary>
-        /// The sign of the <see cref="DistanceMoved"/>: negative is left and positive is right (speaking of the relation between previous and current <see cref="CatchDifficultyHitObject"/>).
+        /// The sign of the <see cref="Distance"/>: negative is left and positive is right (speaking of the relation between current and next <see cref="CatchDifficultyHitObject"/>).
         /// </summary>
         public int Direction;
+
+        /// <summary>
+        /// The sign of the <see cref="DistanceMoved"/>: negative is left and positive is right (speaking of the relation between current and next <see cref="CatchDifficultyHitObject"/>).
+        /// </summary>
+        public int MovementDirection;
 
         /// <summary>
         /// Subsequence of consecutive objects facing the same direction that the current <see cref="CatchDifficultyHitObject"/> is a part of.
@@ -91,7 +96,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             // Divide all hit objects into flows, i.e. series of consecutive notes facing the same direction
             var prev = (CatchDifficultyHitObject)Previous(0);
 
-            if (prev != null && prev.Flow.Direction == Direction)
+            if (prev != null && prev.Flow.Direction == MovementDirection)
             {
                 prev.Flow.Add(this);
                 Flow = prev.Flow;
@@ -120,7 +125,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             if (LastObject.HyperDash)
                 PlayerPosition = NormalizedPosition;
 
-            Direction = Math.Sign(DistanceMoved);
+            Direction = Math.Sign(Distance);
+            MovementDirection = Math.Sign(DistanceMoved);
         }
     }
 }

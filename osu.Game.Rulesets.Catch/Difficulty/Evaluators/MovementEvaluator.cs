@@ -36,7 +36,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             // Direction change bonus.
             if (Math.Abs(catchNext.DistanceMoved) > 0.1)
             {
-                if (Math.Abs(catchCurrent.DistanceMoved) > 0.1 && catchNext.Direction != catchCurrent.Direction)
+                if (Math.Abs(catchCurrent.DistanceMoved) > 0.1 && catchNext.MovementDirection != catchCurrent.MovementDirection)
                 {
                     double bonusFactor = Math.Min(50, Math.Abs(catchNext.DistanceMoved)) / 50;
                     double antiflowFactor = Math.Max(Math.Min(70, Math.Abs(catchCurrent.DistanceMoved)) / 70, 0.38);
@@ -89,7 +89,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                 var catchPrevObj = (CatchDifficultyHitObject)catchNext.Previous(i);
 
                 // Only same direction movements matter as they do not take any additional inputs.
-                if (catchNext.Direction != catchPrevObj.Direction || catchNext.Distance == 0 || catchPrevObj.Distance == 0)
+                if (catchNext.MovementDirection != catchPrevObj.MovementDirection || catchNext.Distance == 0 || catchPrevObj.Distance == 0)
                     break;
 
                 double nextSpacing = Math.Abs(catchNext.Distance / catchNext.StrainTime);
