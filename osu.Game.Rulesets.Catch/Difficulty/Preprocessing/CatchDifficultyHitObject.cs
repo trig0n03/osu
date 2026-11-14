@@ -62,12 +62,12 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
         public readonly double StrainTime;
 
         /// <summary>
-        /// The sign of the <see cref="Distance"/>: negative is left and positive is right (speaking of the relation between current and next <see cref="CatchDifficultyHitObject"/>).
+        /// The sign of the <see cref="Distance"/>: negative is left and positive is right (speaking of the relation between previous and current <see cref="CatchDifficultyHitObject"/>).
         /// </summary>
         public int Direction;
 
         /// <summary>
-        /// The sign of the <see cref="DistanceMoved"/>: negative is left and positive is right (speaking of the relation between current and next <see cref="CatchDifficultyHitObject"/>).
+        /// The sign of the <see cref="DistanceMoved"/>: negative is left and positive is right (speaking of the relation between previous and current <see cref="CatchDifficultyHitObject"/>).
         /// </summary>
         public int MovementDirection;
 
