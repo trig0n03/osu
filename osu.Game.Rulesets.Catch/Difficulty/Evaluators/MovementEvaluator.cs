@@ -15,11 +15,11 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
 
         public static double EvaluateDifficultyOf(DifficultyHitObject current, double circleSize)
         {
-            var catchLast = (CatchDifficultyHitObject)current.Previous(0);
             var catchCurrent = (CatchDifficultyHitObject)current;
-            var catchNext = (CatchDifficultyHitObject)current.Next(0);
+            var catchPrev = catchCurrent.Prev;
+            var catchNext = catchCurrent.Next;
 
-            if (catchLast == null || catchNext == null)
+            if(catchPrev == null || catchNext == null)
                 return 0;
 
             // In catch, clockrate adjustments do not only affect the timings of hitobjects,
@@ -127,9 +127,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             // To achieve that, we need to store the exact distances between consecutive objects.
             if (Math.Abs(catchNext.Distance) <= CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 2
                 && Precision.AlmostEquals(catchNext.Distance, -catchCurrent.Distance)
-                && Precision.AlmostEquals(catchCurrent.Distance, -catchLast.Distance)
+                && Precision.AlmostEquals(catchCurrent.Distance, -catchPrev.Distance)
                 && Precision.AlmostEquals(catchNext.StrainTime, catchCurrent.StrainTime)
-                && Precision.AlmostEquals(catchCurrent.StrainTime, catchLast.StrainTime))
+                && Precision.AlmostEquals(catchCurrent.StrainTime, catchPrev.StrainTime))
                 distanceAddition = 0;
 
             return distanceAddition / weightedStrainTime;

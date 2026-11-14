@@ -18,6 +18,10 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
 
         public new PalpableCatchHitObject LastObject => (PalpableCatchHitObject)base.LastObject;
 
+        public CatchDifficultyHitObject Prev => (CatchDifficultyHitObject)Previous(0);
+
+        public CatchDifficultyHitObject Next => (CatchDifficultyHitObject)Next(0);
+
         /// <summary>
         /// Normalized position of <see cref="BaseObject"/>.
         /// </summary>
@@ -94,12 +98,11 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             setMovementState();
 
             // Divide all hit objects into flows, i.e. series of consecutive notes facing the same direction
-            var prev = (CatchDifficultyHitObject)Previous(0);
 
-            if (prev != null && prev.Flow.Direction == MovementDirection)
+            if (Prev != null && Prev.Flow.Direction == MovementDirection)
             {
-                prev.Flow.Add(this);
-                Flow = prev.Flow;
+                Prev.Flow.Add(this);
+                Flow = Prev.Flow;
             }
             else // Previous object is a direction change (or null)
             {
@@ -110,7 +113,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
 
         private void setMovementState()
         {
-            LastPlayerPosition = Index == 0 ? LastNormalizedPosition : ((CatchDifficultyHitObject)Previous(0)).PlayerPosition;
+            LastPlayerPosition = Index == 0 ? LastNormalizedPosition : Prev.PlayerPosition;
 
             PlayerPosition = Math.Clamp(
                 LastPlayerPosition,
