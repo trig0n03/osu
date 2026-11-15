@@ -75,6 +75,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                             repetitiveSpacingWeight += (1.0 - relativeDifference / 0.15) * DiffUtils.Pow(0.9, i);
                     }
                 }
+                
+                double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.975, repetitiveSpacingWeight) : DiffUtils.Pow(0.94, repetitiveSpacingWeight);
+                distanceAddition *= repetitiveSpacingPenalty;
             }
 
             double repetitiveSpacingPenalty = catchNext.BaseObject.HyperDash ? DiffUtils.Pow(0.97, repetitiveSpacingWeight) : DiffUtils.Pow(0.93, repetitiveSpacingWeight);
@@ -111,7 +114,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                 if (!catchNext.LastObject.HyperDash)
                 {
                     // Precision value (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash.
-                    edgeDashBonus += 3.0 + 0.1 * DiffUtils.Pow(circleSize, 0.8);
+                    edgeDashBonus += 2.9 + 0.1 * DiffUtils.Pow(circleSize, 0.8);
                     if (catchCurrent.LastObject.HyperDash) // Edge dashes are harder when they appear right after a hyperdash.
                         edgeDashBonus *= 1.4;
                     if (catchNext.Direction == catchCurrent.Direction)
