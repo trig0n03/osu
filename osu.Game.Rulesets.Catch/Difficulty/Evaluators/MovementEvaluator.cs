@@ -75,12 +75,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                             repetitiveSpacingWeight += (1.0 - relativeDifference / 0.15) * DiffUtils.Pow(0.9, i);
                     }
                 }
-                
-                double repetitiveSpacingPenalty = catchCurrent.BaseObject.HyperDash ? DiffUtils.Pow(0.975, repetitiveSpacingWeight) : DiffUtils.Pow(0.94, repetitiveSpacingWeight);
-                distanceAddition *= repetitiveSpacingPenalty;
             }
 
-            double repetitiveSpacingPenalty = catchNext.BaseObject.HyperDash ? DiffUtils.Pow(0.97, repetitiveSpacingWeight) : DiffUtils.Pow(0.93, repetitiveSpacingWeight);
+            double repetitiveSpacingPenalty = catchNext.BaseObject.HyperDash ? DiffUtils.Pow(0.975, repetitiveSpacingWeight) : DiffUtils.Pow(0.94, repetitiveSpacingWeight);
             distanceAddition *= repetitiveSpacingPenalty;
 
             // Linear spacing nerf.
