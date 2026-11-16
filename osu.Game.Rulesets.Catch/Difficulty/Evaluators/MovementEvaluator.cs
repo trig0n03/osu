@@ -13,15 +13,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
     {
         private const double direction_change_bonus = 21.0;
 
-        /// <summary>
-        /// Evaluates the difficulty of the action performed on <paramref name="current"/>,
-        /// i.e. arriving from the previous object and leaving towards the next object.
-        /// </summary>
-        /// <remarks>
-        /// <see cref="CatchDifficultyHitObject.DistanceMoved"/> of an object describes the movement leading into it,
-        /// so the movement leaving <paramref name="current"/> is stored on the next object.
-        /// The first and the last objects have no well-defined action and are given zero difficulty.
-        /// </remarks>
         public static double EvaluateDifficultyOf(DifficultyHitObject current, double circleSize)
         {
             var catchCurrent = (CatchDifficultyHitObject)current;
