@@ -53,11 +53,10 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             // Penalty is given based on the ratio between the current (incoming) normalised spacing and the previous normalised spacing.
             double repetitiveSpacingWeight = 0;
 
-            var nextFlow = catchNext.Flow;
             var currentFlow = catchCurrent.Flow;
 
             // Penalty is applied only to the direction changes.
-            if (nextFlow.IsFirst(catchNext))
+            if (currentFlow.IsLast(catchCurrent))
             {
                 for (int i = 0; i < Math.Min(currentFlow.Index, 8); i++)
                 {
@@ -106,9 +105,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             distanceAddition *= DiffUtils.Pow(0.6, linearSpacingCount);
 
             // Bonus for edge dashes.
-            if (catchNext.LastObject.DistanceToHyperDash <= 30.0f)
+            if (catchCurrent.BaseObject.DistanceToHyperDash <= 30.0f)
             {
-                if (!catchNext.LastObject.HyperDash)
+                if (!catchCurrent.BaseObject.HyperDash)
                 {
                     // Precision value (time window to hit the note) is lower for higher CS and for fixed distance to the hyperdash.
                     edgeDashBonus += 2.9 + 0.1 * DiffUtils.Pow(circleSize, 0.8);
@@ -118,7 +117,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                         edgeDashBonus *= 0.75;
                 }
 
-                distanceAddition *= 1.0 + edgeDashBonus * (30 - catchNext.LastObject.DistanceToHyperDash) / 30;
+                distanceAddition *= 1.0 + edgeDashBonus * (30 - catchCurrent.BaseObject.DistanceToHyperDash) / 30;
             }
 
             // There is an edge case where horizontal back and forth sliders create "buzz" patterns which are repeated "movements" with a distance lower than

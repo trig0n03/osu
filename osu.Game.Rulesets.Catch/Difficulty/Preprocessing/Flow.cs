@@ -35,9 +35,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             StrainTime = Math.Max(hitObjects.Aggregate(0.0, (acc, h) => acc + h.DeltaTime), 40);
         }
 
-        // Return true whenever the previous object is a direction change.
-        // We treat the first object of the map as a non-direction change.
-        public bool IsFirst(CatchDifficultyHitObject hitObject) => hitObject.Index == hitObjects.First().Index;
+        // Return true whenever the given object is a direction change.
+        // We treat the last object of the map as a direction change.
+        public bool IsLast(CatchDifficultyHitObject hitObject) => hitObject.Index == hitObjects.Last().Index;
 
         public Flow? Previous(int backwardsIndex)
         {
