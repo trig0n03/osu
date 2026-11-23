@@ -62,10 +62,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
         public readonly double StrainTime;
 
         /// <summary>
-        /// The sign of the <see cref="DistanceMoved"/>: negative is left, 0 is "no movement", and positive is right
-        /// (speaking of the relation between previous and current <see cref="CatchDifficultyHitObject"/>).
+        /// The direction of player movement between previous and current <see cref="CatchDifficultyHitObject"/>.
         /// </summary>
-        public int MovementDirection;
+        public Direction MovementDirection;
 
         /// <summary>
         /// Subsequence of consecutive objects facing the same <see cref="MovementDirection"/> that the current <see cref="CatchDifficultyHitObject"/> is part of.
@@ -91,13 +90,13 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             setMovementState();
 
             // Divide all hit objects into flows, i.e. series of consecutive notes facing the same direction.
-            var prev = (CatchDifficultyHitObject)Previous(0);
+            var prev = (CatchDifficultyHitObject?)Previous();
 
-            if (prev != null && (prev.Flow.MovementDirection == MovementDirection || MovementDirection == 0))
-                {
-                    prev.Flow.Add(this);
-                    Flow = prev.Flow;
-                }
+            if (prev != null && (prev.Flow.MovementDirection == MovementDirection || MovementDirection == Direction.None))
+            {
+                prev.Flow.Add(this);
+                Flow = prev.Flow;
+            }
             else // Create a new flow on direction change (or the first object of the map).
             {
                 Flow = new Flow(new List<CatchDifficultyHitObject> { this }, flows, flows.Count);
@@ -124,7 +123,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
             if (LastObject.HyperDash)
                 PlayerPosition = NormalizedPosition;
 
-            MovementDirection = Math.Sign(DistanceMoved);
+            MovementDirection = (Direction)Math.Sign(DistanceMoved);
         }
     }
 }
