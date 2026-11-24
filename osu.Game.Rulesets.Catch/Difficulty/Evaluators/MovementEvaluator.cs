@@ -26,7 +26,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             double weightedStrainTime = catchCurrent.StrainTime + 16 / clockRate;
 
             double distanceAddition = (DiffUtils.Pow(Math.Abs(catchCurrent.DistanceMoved), 1.3) / 510);
-            double sqrtStrain = Math.Sqrt(weightedStrainTime);
 
             double edgeDashBonus = 0;
 
@@ -43,7 +42,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
 
                 // Base bonus for every movement, giving some weight to streams.
                 distanceAddition += 12.5 * Math.Min(Math.Abs(catchCurrent.DistanceMoved), CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 2)
-                                    / (CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 6) / sqrtStrain;
+                                    / (CatchDifficultyHitObject.NORMALIZED_HALF_CATCHER_WIDTH * 6) / Math.Sqrt(weightedStrainTime);
             }
 
             // Linear spacing nerf.
