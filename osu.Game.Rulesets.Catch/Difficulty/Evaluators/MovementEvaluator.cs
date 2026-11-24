@@ -21,7 +21,9 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             // but also the speed of the player's catcher, which has an impact on difficulty
             double clockRate = current.ClockRate;
 
-            double weightedStrainTime = catchCurrent.StrainTime + 16 / clockRate;
+            const double time_shift = 16 / clockRate; // We add 16 milliseconds to each StrainTime to decrease the difference between the fastest timings.
+
+            double weightedStrainTime = catchCurrent.StrainTime + time_shift;
 
             double distanceAddition = (DiffUtils.Pow(Math.Abs(catchCurrent.DistanceMoved), 1.3) / 510);
 
@@ -38,7 +40,7 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
                     double bonusFactor = Math.Min(full_distance_cutoff, Math.Abs(catchCurrent.DistanceMoved)) / full_distance_cutoff;
                     double antiflowFactor = Math.Min(full_distance_cutoff, Math.Abs(catchLast.DistanceMoved)) / full_distance_cutoff;
 
-                    distanceAddition += direction_change_bonus / Math.Sqrt(catchLast.StrainTime + 16 / clockRate) * bonusFactor * antiflowFactor * Math.Max(1 - DiffUtils.Pow(weightedStrainTime / 1000, 3), 0);
+                    distanceAddition += direction_change_bonus / Math.Sqrt(catchLast.StrainTime + time_shift) * bonusFactor * antiflowFactor * Math.Max(1 - DiffUtils.Pow(weightedStrainTime / 1000, 3), 0);
                 }
 
                 // Base bonus for every movement, giving some weight to streams.
