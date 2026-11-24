@@ -11,8 +11,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
 {
     public static class MovementEvaluator
     {
-        private const double direction_change_bonus = 21.0;
-
         public static double EvaluateDifficultyOf(DifficultyHitObject current)
         {
             var catchCurrent = (CatchDifficultyHitObject)current;
@@ -34,8 +32,11 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             {
                 if (catchLast != null && Math.Abs(catchLast.DistanceMoved) > 0.1 && Math.Sign(catchCurrent.DistanceMoved) != Math.Sign(catchLast.DistanceMoved))
                 {
-                    double bonusFactor = Math.Min(50, Math.Abs(catchCurrent.DistanceMoved)) / 50;
-                    double antiflowFactor = Math.Max(Math.Min(70, Math.Abs(catchLast.DistanceMoved)) / 70, 0.38);
+                    const double direction_change_bonus = 21;
+                    const double full_distance_cutoff = 50;
+
+                    double bonusFactor = Math.Min(full_distance_cutoff, Math.Abs(catchCurrent.DistanceMoved)) / full_distance_cutoff;
+                    double antiflowFactor = Math.Min(full_distance_cutoff, Math.Abs(catchLast.DistanceMoved)) / full_distance_cutoff;
 
                     distanceAddition += direction_change_bonus / Math.Sqrt(catchLast.StrainTime + 16 / clockRate) * bonusFactor * antiflowFactor * Math.Max(1 - DiffUtils.Pow(weightedStrainTime / 1000, 3), 0);
                 }
