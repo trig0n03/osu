@@ -42,13 +42,13 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             double scoreMaxCombo = Math.Clamp(score.MaxCombo, 0, catchAttributes.MaxCombo);
 
             // We are heavily relying on aim in catch the beat
-            double value = DiffUtils.Pow(5.0 * Math.Max(1.0, catchAttributes.StarRating / 0.0049) - 4.0, 2.1) / 210000.0;
+            double value = DiffUtils.Pow(5 * Math.Max(1, catchAttributes.StarRating / 0.0049) - 4, 2.1) / 210000;
 
             value *= DiffUtils.Pow(0.97, numMiss);
 
             // Combo scaling
             if (catchAttributes.MaxCombo > 0)
-                value *= Math.Min(DiffUtils.Pow(scoreMaxCombo, 0.35) / DiffUtils.Pow(catchAttributes.MaxCombo, 0.35), 1.0);
+                value *= Math.Min(DiffUtils.Pow(scoreMaxCombo, 0.35) / DiffUtils.Pow(catchAttributes.MaxCombo, 0.35), 1);
 
             var difficulty = score.BeatmapInfo!.Difficulty.Clone();
 
@@ -59,25 +59,25 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             // this is the same as osu!, so there's potential to share the implementation... maybe
             double preempt = IBeatmapDifficultyInfo.DifficultyRange(difficulty.ApproachRate, 1800, 1200, 450) / clockRate;
 
-            double approachRate = preempt > 1200.0 ? -(preempt - 1800.0) / 120.0 : -(preempt - 1200.0) / 150.0 + 5.0;
+            double approachRate = preempt > 120 ? -(preempt - 1800) / 120 : -(preempt - 1200) / 150 + 5;
 
-            double approachRateFactor = 1.0;
-            if (approachRate > 9.0)
-                approachRateFactor += 0.1 * (approachRate - 9.0); // 10% for each AR above 9
-            if (approachRate > 10.0)
-                approachRateFactor += 0.1 * (approachRate - 10.0); // Additional 10% at AR 11, 30% total
-            else if (approachRate < 8.0)
-                approachRateFactor += 0.025 * (8.0 - approachRate); // 2.5% for each AR below 8
+            double approachRateFactor = 1;
+            if (approachRate > 9)
+                approachRateFactor += 0.1 * (approachRate - 9); // 10% for each AR above 9
+            if (approachRate > 10)
+                approachRateFactor += 0.1 * (approachRate - 10); // Additional 10% at AR 11, 30% total
+            else if (approachRate < 8)
+                approachRateFactor += 0.025 * (8 - approachRate); // 2.5% for each AR below 8
 
             value *= approachRateFactor;
 
             if (score.Mods.Any(m => m is ModHidden))
             {
                 // Hiddens gives almost nothing on max approach rate, and more the lower it is
-                if (approachRate <= 10.0)
-                    value *= 1.05 + 0.075 * (10.0 - approachRate); // 7.5% for each AR below 10
-                else if (approachRate > 10.0)
-                    value *= 1.01 + 0.04 * (11.0 - Math.Min(11.0, approachRate)); // 5% at AR 10, 1% at AR 11
+                if (approachRate <= 10)
+                    value *= 1.05 + 0.075 * (10 - approachRate); // 7.5% for each AR below 10
+                else if (approachRate > 10)
+                    value *= 1.01 + 0.04 * (11 - Math.Min(11, approachRate)); // 5% at AR 10, 1% at AR 11
             }
 
             // Longer maps are worth more when Flashlight is applied. "Longer" means how many notes there are which can contribute to combo
@@ -85,15 +85,15 @@ namespace osu.Game.Rulesets.Catch.Difficulty
             {
                 int totalCombo = totalComboHits();
                 double flashlightLengthBonus =
-                    1.35 * (0.95 + 0.3 * Math.Min(1.0, totalCombo / 2500.0) +
-                            (totalCombo > 2500 ? Math.Log10(totalCombo / 2500.0) * 0.475 : 0.0));
+                    1.35 * (0.95 + 0.3 * Math.Min(1, totalCombo / 2500) +
+                            (totalCombo > 2500 ? Math.Log10(totalCombo / 2500) * 0.475 : 0));
                 value *= flashlightLengthBonus;
             }
 
             value *= DiffUtils.Pow(accuracy(), 5.5);
 
             if (score.Mods.Any(m => m is ModNoFail))
-                value *= Math.Max(0.90, 1.0 - 0.02 * numMiss);
+                value *= Math.Max(0.90, 1 - 0.02 * numMiss);
 
             value *= performance_multiplier;
 

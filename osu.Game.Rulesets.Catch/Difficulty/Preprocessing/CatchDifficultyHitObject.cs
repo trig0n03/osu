@@ -11,8 +11,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Preprocessing
 {
     public class CatchDifficultyHitObject : DifficultyHitObject
     {
-        public const float NORMALIZED_HALF_CATCHER_WIDTH = 41.0f;
-        private const float absolute_player_positioning_error = 16.0f;
+        public const float NORMALIZED_HALF_CATCHER_WIDTH = 41f;
+        private const float absolute_player_positioning_error = 16f;
 
         public new PalpableCatchHitObject BaseObject => (PalpableCatchHitObject)base.BaseObject;
 

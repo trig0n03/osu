@@ -73,12 +73,12 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             distanceAddition *= DiffUtils.Pow(0.7, linearSpacingCount);
 
             // Bonus for edge dashes.
-            if (catchCurrent.LastObject.DistanceToHyperDash <= 20.0f)
+            if (catchCurrent.LastObject.DistanceToHyperDash <= 20f)
             {
                 if (!catchCurrent.LastObject.HyperDash)
                     edgeDashBonus += 5.7;
 
-                distanceAddition *= 1.0 + edgeDashBonus * ((20 - catchCurrent.LastObject.DistanceToHyperDash) / 20)
+                distanceAddition *= 1 + edgeDashBonus * ((20 - catchCurrent.LastObject.DistanceToHyperDash) / 20)
                                                         * DiffUtils.Pow((Math.Min(catchCurrent.StrainTime * clockRate, 265) / 265), 1.5); // Edge Dashes are easier at lower ms values
             }
 
