@@ -27,8 +27,6 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
 
             double distanceAddition = (DiffUtils.Pow(Math.Abs(catchCurrent.DistanceMoved), 1.3) / 510);
 
-            double edgeDashBonus = 0;
-
             // Direction change bonus.
             if (Math.Abs(catchCurrent.DistanceMoved) > 0.1)
             {
@@ -73,6 +71,8 @@ namespace osu.Game.Rulesets.Catch.Difficulty.Evaluators
             distanceAddition *= DiffUtils.Pow(0.7, linearSpacingCount);
 
             // Bonus for edge dashes.
+            double edgeDashBonus = 0;
+
             if (catchCurrent.LastObject.DistanceToHyperDash <= 20f)
             {
                 if (!catchCurrent.LastObject.HyperDash)
